@@ -6,7 +6,7 @@ RSpec.describe Pubid::Core::Identifier do
 
     context "when apply amendments" do
       context "when several amendments" do
-        let(:params) { { amendments: [{ version: 1, number: 2000 }, { version: 2, number: 2000 }] } }
+        let(:params) { { publisher: "ISO", number: 1234, amendments: [{ version: 1, number: 2000 }, { version: 2, number: 2000 }] } }
 
         it "asigns amendments" do
           expect(subject.amendments)
@@ -16,7 +16,7 @@ RSpec.describe Pubid::Core::Identifier do
       end
 
       context "when single amendment" do
-        let(:params) { { amendments: { version: 1, number: 2016 } } }
+        let(:params) { { publisher: "ISO", number: 1234, amendments: { version: 1, number: 2016 } } }
 
         it "assigns amendment" do
           expect(subject.amendments)
@@ -27,7 +27,7 @@ RSpec.describe Pubid::Core::Identifier do
 
     context "when apply corrigendum" do
       context "when several corrigendums" do
-        let(:params) { { corrigendums: [{ version: 1, number: 2000 }, { version: 2, number: 2000 }] } }
+        let(:params) { { publisher: "ISO", number: 1234, corrigendums: [{ version: 1, number: 2000 }, { version: 2, number: 2000 }] } }
 
         it "asigns corrigendums" do
           expect(subject.corrigendums)
@@ -37,7 +37,7 @@ RSpec.describe Pubid::Core::Identifier do
       end
 
       context "when single corrigendum" do
-        let(:params) { { corrigendums: { version: 1, number: 2016 } } }
+        let(:params) { { publisher: "ISO", number: 1234, corrigendums: { version: 1, number: 2016 } } }
 
         it "assigns corrigendum" do
           expect(subject.corrigendums)

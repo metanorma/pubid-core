@@ -3,6 +3,9 @@ module Pubid::Core
     include Comparable
     attr_accessor :version, :number
 
+    # Creates new supplement with provided version and optional number
+    # @param version [Integer]
+    # @param number [Integer]
     def initialize(version:, number: nil)
       @version, @number = version&.to_i, number&.to_i
     end
