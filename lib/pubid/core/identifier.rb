@@ -113,10 +113,15 @@ module Pubid::Core
         Transformer
       end
 
-      def update_old_code(code)
-        return code unless defined?(UPDATE_CODES)
+      # @return [Hash, nil] replacement patterns
+      def get_update_codes
+        nil
+      end
 
-        UPDATE_CODES.each do |from, to|
+      def update_old_code(code)
+        return code unless get_update_codes
+
+        get_update_codes.each do |from, to|
           code = code.gsub(from.match?(/^\/.*\/$/) ? Regexp.new(from[1..-2]) : /^#{Regexp.escape(from)}$/, to)
         end
         code
