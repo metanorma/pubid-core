@@ -21,25 +21,9 @@ module Pubid::Core
     def initialize(publisher:, number:, copublisher: nil, part: nil, type: nil,
                    year: nil, edition: nil, language: nil, amendments: nil,
                    corrigendums: nil)
-      if amendments
-        @amendments = if amendments.is_a?(Array)
-                        amendments.map do |amendment|
-                          self.class.get_amendment_class.new(**amendment)
-                        end
-                      else
-                        [self.class.get_amendment_class.new(**amendments)]
-                      end
-      end
-      if corrigendums
-        @corrigendums = if corrigendums.is_a?(Array)
-                          corrigendums.map do |corrigendum|
-                            self.class.get_corrigendum_class.new(**corrigendum)
-                          end
-                        else
-                          [self.class.get_corrigendum_class.new(**corrigendums)]
-                        end
-      end
 
+      @amendments = amendments
+      @corrigendums = corrigendums
       @publisher = publisher.to_s
       @number = number
       @copublisher = copublisher if copublisher
@@ -72,6 +56,13 @@ module Pubid::Core
       def parse(code_or_params)
         params = code_or_params.is_a?(String) ?
                    get_parser_class.new.parse(update_old_code(code_or_params)) : code_or_params
+        transform(params)
+      rescue Parslet::ParseFailed => failure
+        raise Errors::ParseError, "#{failure.message}\ncause: #{failure.parse_failure_cause.ascii_tree}"
+      end
+
+      # Transform parameters hash or array or hashes to identifier
+      def transform(params)
         # Parslet returns an array when match any copublisher
         # otherwise it's hash
         if params.is_a?(Array)
@@ -80,7 +71,7 @@ module Pubid::Core
               params.inject({}) do |r, i|
                 result = r
                 i.map {|k, v| get_transformer_class.new.apply(k => v).to_a.first }.each do |k, v|
-                  result = result.merge(k => r.key?(k) ? [v, r[k]] : v)
+                  result = result.merge(k => r.key?(k) ? [v, r[k]].flatten : v)
                 end
                 result
               end
@@ -92,9 +83,6 @@ module Pubid::Core
           end.to_h)
         end
         # merge values repeating keys into array (for copublishers)
-
-      rescue Parslet::ParseFailed => failure
-        raise Errors::ParseError, "#{failure.message}\ncause: #{failure.parse_failure_cause.ascii_tree}"
       end
 
       def get_amendment_class
