@@ -1,36 +1,36 @@
 module Pubid::Core
   class Supplement
     include Comparable
-    attr_accessor :version, :number
+    attr_accessor :number, :year
 
-    # Creates new supplement with provided version and optional number
-    # @param version [Integer]
+    # Creates new supplement with provided update number and optional year
     # @param number [Integer]
-    def initialize(version:, number: nil)
-      @version, @number = version&.to_i, number&.to_i
+    # @param year [Integer]
+    def initialize(number:, year: nil)
+      @number, @year = number&.to_i, year&.to_i
     end
 
     def <=>(other)
-      return 0 if number.nil? && other.number
+      return 0 if year.nil? && other.year
 
-      return number <=> other.number if version == other.version
+      return year <=> other.year if number == other.number
 
-      (version <=> other.version) || number <=> other.number
+      (number <=> other.number) || year <=> other.year
     end
 
     def render_pubid_number
-        if @number
-          "#{@version}:#{@number}"
+        if @year
+          "#{@number}:#{@year}"
         else
-          "#{@version}"
+          "#{@number}"
         end
     end
 
     def render_urn_number
-        if @number
-          ":#{@number}:v#{@version}"
+        if @year
+          ":#{@year}:v#{@number}"
         else
-          ":#{@version}:v1"
+          ":#{@number}:v1"
         end
     end
   end

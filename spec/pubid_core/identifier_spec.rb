@@ -9,14 +9,14 @@ RSpec.describe Pubid::Core::Identifier do
         let(:params) do
           { publisher: "ISO",
             number: 1234,
-            amendments: [Pubid::Core::Amendment.new(version: 1, number: 2000),
-                         Pubid::Core::Amendment.new(version: 2, number: 2000)] }
+            amendments: [Pubid::Core::Amendment.new(number: 1, year: 2000),
+                         Pubid::Core::Amendment.new(number: 2, year: 2000)] }
         end
 
         it "asigns amendments" do
           expect(subject.amendments)
-            .to eq([Pubid::Core::Amendment.new(version: 1, number: 2000),
-                    Pubid::Core::Amendment.new(version: 2, number: 2000)])
+            .to eq([Pubid::Core::Amendment.new(number: 1, year: 2000),
+                    Pubid::Core::Amendment.new(number: 2, year: 2000)])
         end
       end
     end
@@ -25,15 +25,15 @@ RSpec.describe Pubid::Core::Identifier do
       context "when several corrigendums" do
         let(:params) do
           { publisher: "ISO", number: 1234, corrigendums:
-            [Pubid::Core::Corrigendum.new(version: 1, number: 2000),
-             Pubid::Core::Corrigendum.new(version: 2, number: 2000)]
+            [Pubid::Core::Corrigendum.new(number: 1, year: 2000),
+             Pubid::Core::Corrigendum.new(number: 2, year: 2000)]
           }
         end
 
         it "asigns corrigendums" do
           expect(subject.corrigendums)
-            .to eq([Pubid::Core::Corrigendum.new(version: 1, number: 2000),
-                    Pubid::Core::Corrigendum.new(version: 2, number: 2000)])
+            .to eq([Pubid::Core::Corrigendum.new(number: 1, year: 2000),
+                    Pubid::Core::Corrigendum.new(number: 2, year: 2000)])
         end
       end
     end
@@ -44,12 +44,12 @@ RSpec.describe Pubid::Core::Identifier do
 
     context "when apply amendments" do
       context "when several amendments" do
-        let(:params) { { publisher: "ISO", number: 1234, amendments: [{ version: 1, number: 2000 }, { version: 2, number: 2000 }] } }
+        let(:params) { { publisher: "ISO", number: 1234, amendments: [{ number: 1, year: 2000 }, { number: 2, year: 2000 }] } }
 
         it "asigns amendments" do
           expect(subject.amendments)
-            .to eq([Pubid::Core::Amendment.new(version: 1, number: 2000),
-                    Pubid::Core::Amendment.new(version: 2, number: 2000)])
+            .to eq([Pubid::Core::Amendment.new(number: 1, year: 2000),
+                    Pubid::Core::Amendment.new(number: 2, year: 2000)])
         end
       end
 
@@ -66,33 +66,33 @@ RSpec.describe Pubid::Core::Identifier do
     subject { described_class.transform(parsed_data) }
 
     context "when have corrigendum" do
-      let(:parsed_data) { { publisher: "ISO", number: 1234, corrigendums: [{ version: 1, number: 2016 }] } }
+      let(:parsed_data) { { publisher: "ISO", number: 1234, corrigendums: [{ number: 1, year: 2016 }] } }
 
       it "transform parsed data" do
-        expect(subject.corrigendums).to eq([Pubid::Core::Corrigendum.new(version: 1, number: 2016)])
+        expect(subject.corrigendums).to eq([Pubid::Core::Corrigendum.new(number: 1, year: 2016)])
       end
 
       context "when only one corrigendum" do
-        let(:parsed_data) { { publisher: "ISO", number: 1234, corrigendums: { :version=>"1", :number=>"2016" } } }
+        let(:parsed_data) { { publisher: "ISO", number: 1234, corrigendums: { :number=>"1", :year=>"2016" } } }
 
         it "transform parsed data" do
-          expect(subject.corrigendums).to eq([Pubid::Core::Corrigendum.new(version: 1, number: 2016)])
+          expect(subject.corrigendums).to eq([Pubid::Core::Corrigendum.new(number: 1, year: 2016)])
         end
       end
     end
 
     context "when have amendment" do
-      let(:parsed_data) { { publisher: "ISO", number: 1234, amendments: [{ version: 1, number: 2016 }] } }
+      let(:parsed_data) { { publisher: "ISO", number: 1234, amendments: [{ number: 1, year: 2016 }] } }
 
       it "transform parsed data" do
-        expect(subject.amendments).to eq([Pubid::Core::Amendment.new(version: 1, number: 2016)])
+        expect(subject.amendments).to eq([Pubid::Core::Amendment.new(number: 1, year: 2016)])
       end
 
       context "when only one amendment" do
-        let(:parsed_data) { { publisher: "ISO", number: 1234, amendments: { :version=>"1", :number=>"2016" } } }
+        let(:parsed_data) { { publisher: "ISO", number: 1234, amendments: { :number=>"1", :year=>"2016" } } }
 
         it "transform parsed data" do
-          expect(subject.amendments).to eq([Pubid::Core::Amendment.new(version: 1, number: 2016)])
+          expect(subject.amendments).to eq([Pubid::Core::Amendment.new(number: 1, year: 2016)])
         end
       end
     end

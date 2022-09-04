@@ -5,10 +5,10 @@ RSpec.describe Pubid::Core::Supplement do
     end
 
     let(:first_supplement) do
-      described_class.new(version: 1, number: first_supplement_year)
+      described_class.new(number: 1, year: first_supplement_year)
     end
     let(:second_supplement) do
-      described_class.new(version: 1, number: second_supplement_year)
+      described_class.new(number: 1, year: second_supplement_year)
     end
     let(:first_supplement_year) { nil }
     let(:second_supplement_year) { nil }
@@ -40,11 +40,11 @@ RSpec.describe Pubid::Core::Supplement do
     end
 
     let(:first_supplement) do
-      described_class.new(version: first_supplement_version, number: first_supplement_year)
+      described_class.new(number: first_supplement_version, year: first_supplement_year)
     end
 
     let(:second_supplement) do
-      described_class.new(version: second_supplement_version, number: second_supplement_year)
+      described_class.new(number: second_supplement_version, year: second_supplement_year)
     end
 
     let(:first_supplement_year) { nil }
@@ -89,7 +89,7 @@ RSpec.describe Pubid::Core::Supplement do
 
   describe "rendering" do
     subject do
-      described_class.new(version: 1, number: supplement_year)
+      described_class.new(number: 1, year: supplement_year)
     end
 
     let(:supplement_year) { 2000 }
