@@ -24,7 +24,9 @@ module Pubid::Core::Renderer
       end.compact.to_h
     end
 
-    # render from hash keys
+    # Render identifier
+    # @param with_date [Boolean] include year in output
+    # @param with_language_code [:iso,:single] render document language as 2-letter ISO 639-1 language code or single code
     def render(with_date: true, with_language_code: :iso)
       params = prerender_params(@params,
                                 { with_date: with_date, with_language_code: with_language_code })
