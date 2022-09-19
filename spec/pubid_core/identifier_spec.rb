@@ -19,6 +19,33 @@ RSpec.describe Pubid::Core::Identifier do
                     Pubid::Core::Amendment.new(number: 2, year: 2000)])
         end
       end
+
+      context "when amendments as hash of parameters" do
+        let(:params) do
+          { publisher: "ISO",
+            number: 1234,
+            amendments: [{ number: 1, year: 2000 }, { number: 2, year: 2000 }] }
+        end
+
+        it "asigns amendments" do
+          expect(subject.amendments)
+            .to eq([Pubid::Core::Amendment.new(number: 1, year: 2000),
+                    Pubid::Core::Amendment.new(number: 2, year: 2000)])
+        end
+
+        context "when only number" do
+          let(:params) do
+            { publisher: "ISO",
+              number: 1234,
+              amendments: [{ number: 1 }] }
+          end
+
+          it "asigns amendments" do
+            expect(subject.amendments)
+              .to eq([Pubid::Core::Amendment.new(number: 1)])
+          end
+        end
+      end
     end
 
     context "when apply corrigendum" do
@@ -28,6 +55,20 @@ RSpec.describe Pubid::Core::Identifier do
             [Pubid::Core::Corrigendum.new(number: 1, year: 2000),
              Pubid::Core::Corrigendum.new(number: 2, year: 2000)]
           }
+        end
+
+        it "asigns corrigendums" do
+          expect(subject.corrigendums)
+            .to eq([Pubid::Core::Corrigendum.new(number: 1, year: 2000),
+                    Pubid::Core::Corrigendum.new(number: 2, year: 2000)])
+        end
+      end
+
+      context "when corrigendums as hash of parameters" do
+        let(:params) do
+          { publisher: "ISO",
+            number: 1234,
+            corrigendums: [{ number: 1, year: 2000 }, { number: 2, year: 2000 }] }
         end
 
         it "asigns corrigendums" do

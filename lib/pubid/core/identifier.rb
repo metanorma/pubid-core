@@ -14,16 +14,34 @@ module Pubid::Core
     # @param edition [Integer] document's edition, eg. "1"
     # @param language [String] document's translation language
     #   (available languages: "ru", "fr", "en", "ar")
-    # @param amendments [Array<Amendment>] document's amendments
-    # @param corrigendums [Array<Corrigendum>] document's corrigendums
+    # @param amendments [Array<Amendment>,Array<Hash>] document's amendments
+    # @param corrigendums [Array<Corrigendum>,Array<Hash>] document's corrigendums
     # @see Amendment
     # @see Corrigendum
     def initialize(publisher:, number:, copublisher: nil, part: nil, type: nil,
                    year: nil, edition: nil, language: nil, amendments: nil,
                    corrigendums: nil)
 
-      @amendments = amendments
-      @corrigendums = corrigendums
+      if amendments
+        @amendments = amendments.map do |amendment|
+          if amendment.is_a?(Hash)
+            self.class.get_transformer_class.new.apply(:amendments => [amendment])[:amendments].first
+          else
+            amendment
+          end
+        end
+      end
+
+      if corrigendums
+        @corrigendums = corrigendums.map do |corrigendum|
+          if corrigendum.is_a?(Hash)
+            self.class.get_transformer_class.new.apply(:corrigendums => [corrigendum])[:corrigendums].first
+          else
+            corrigendum
+          end
+        end
+      end
+
       @publisher = publisher.to_s
       @number = number
       @copublisher = copublisher if copublisher
