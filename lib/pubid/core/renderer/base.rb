@@ -93,16 +93,16 @@ module Pubid::Core::Renderer
       render_base(params)
     end
 
-    def render_publisher(publisher, _opts, _params)
-      return publisher unless @copublisher
+    def render_publisher(publisher, _opts, params)
+      return publisher unless params[:copublisher]
 
-      case @copublisher
+      case params[:copublisher]
       when Array
-        ([publisher] + @copublisher.map(&:to_s)).map do |pub|
+        ([publisher] + params[:copublisher].map(&:to_s).sort.map(&:to_s)).map do |pub|
           pub.gsub('-', '/')
         end.join("/")
       else
-        [publisher, copublisher].join("/")
+        [publisher, params[:copublisher]].join("/")
       end
     end
 
