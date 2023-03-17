@@ -1,148 +1,90 @@
-RSpec.describe Pubid::Core::Identifier do
-  subject { described_class.parse(original) }
+module Pubid::Core
+  module TestIdentifier
+    class << self
+      include Pubid::Core::Identifier
+    end
+  end
 
-  describe "#initialize" do
-    subject { described_class.new(**params) }
+  RSpec.describe TestIdentifier do
+    let(:config) do
+      config = Pubid::Core::Configuration.new
+      config.stages = stages
+      config.type_class = Type
+      config.default_type = DummyDefaultType
+      config.types = [DummyTechnicalReportType]
+      config.type_names = { tr: { long: "Technical Report",
+                                  short: "TR" } }
 
-    context "when apply amendments" do
-      context "when several amendments" do
-        let(:params) do
-          { publisher: "ISO",
-            number: 1234,
-            amendments: [Pubid::Core::Amendment.new(number: 1, year: 2000),
-                         Pubid::Core::Amendment.new(number: 2, year: 2000)] }
-        end
+      config
+    end
 
-        it "asigns amendments" do
-          expect(subject.amendments)
-            .to eq([Pubid::Core::Amendment.new(number: 1, year: 2000),
-                    Pubid::Core::Amendment.new(number: 2, year: 2000)])
-        end
+    let(:stages) do
+      {
+        "abbreviations" => { "WD" => %w[20.20 20.60 20.98 20.99] },
+        "codes_description" => { "20.20" => "Working draft (WD) study initiated" },
+        "stage_codes" => { reparatory: "20" },
+        "substage_codes" => { start_of_main_action: "20" },
+      }
+    end
+
+    before do
+      described_class.set_config(config)
+    end
+
+    describe "#resolve_identifier" do
+      subject { described_class.resolve_identifier({ number: 1, publisher: "ISO", type: type, stage: typed_stage }) }
+      let(:type) { nil }
+      let(:typed_stage) { nil }
+
+      context "when TR type" do
+        let(:type) { :tr }
+
+        it { is_expected.to a_kind_of(DummyTechnicalReportType) }
+        it { expect(subject.type[:key]).to eq(:tr) }
       end
 
-      context "when amendments as hash of parameters" do
-        let(:params) do
-          { publisher: "ISO",
-            number: 1234,
-            amendments: [{ number: 1, year: 2000 }, { number: 2, year: 2000 }] }
-        end
-
-        it "asigns amendments" do
-          expect(subject.amendments)
-            .to eq([Pubid::Core::Amendment.new(number: 1, year: 2000),
-                    Pubid::Core::Amendment.new(number: 2, year: 2000)])
-        end
-
-        context "when only number" do
-          let(:params) do
-            { publisher: "ISO",
-              number: 1234,
-              amendments: [{ number: 1 }] }
-          end
-
-          it "asigns amendments" do
-            expect(subject.amendments)
-              .to eq([Pubid::Core::Amendment.new(number: 1)])
-          end
-        end
+      context "when no type or typed stage" do
+        it { is_expected.to a_kind_of(DummyDefaultType) }
       end
     end
 
-    context "when apply corrigendum" do
-      context "when several corrigendums" do
-        let(:params) do
-          { publisher: "ISO", number: 1234, corrigendums:
-            [Pubid::Core::Corrigendum.new(number: 1, year: 2000),
-             Pubid::Core::Corrigendum.new(number: 2, year: 2000)]
+    context "building entities" do
+      context "when build stage" do
+        subject { described_class.build_stage(harmonized_code: "20.20") }
+
+        it { is_expected.to be_a(Stage) }
+        it { expect(subject.to_s).to eq("WD") }
+      end
+
+      context "when build type" do
+        subject { described_class.build_type(:tr) }
+
+        it { is_expected.to be_a(Type) }
+        it { expect(subject.to_s).to eq("TR") }
+      end
+
+      context "when build harmonized stage code" do
+        subject { described_class.build_harmonized_stage_code("20.20") }
+
+        it { is_expected.to be_a(HarmonizedStageCode) }
+        it { expect(subject.to_s).to eq("20.20") }
+      end
+
+      context "when apply different configuration" do
+        let(:stages) do
+          {
+            "abbreviations" => { "CD" => %w[20.20] },
+            "codes_description" => { "20.20" => "Working draft (WD) study initiated" },
+            "stage_codes" => { reparatory: "20" },
+            "substage_codes" => { start_of_main_action: "20" },
           }
         end
 
-        it "asigns corrigendums" do
-          expect(subject.corrigendums)
-            .to eq([Pubid::Core::Corrigendum.new(number: 1, year: 2000),
-                    Pubid::Core::Corrigendum.new(number: 2, year: 2000)])
-        end
-      end
+        context "when build stage" do
+          subject { described_class.build_stage(harmonized_code: "20.20") }
 
-      context "when corrigendums as hash of parameters" do
-        let(:params) do
-          { publisher: "ISO",
-            number: 1234,
-            corrigendums: [{ number: 1, year: 2000 }, { number: 2, year: 2000 }] }
-        end
-
-        it "asigns corrigendums" do
-          expect(subject.corrigendums)
-            .to eq([Pubid::Core::Corrigendum.new(number: 1, year: 2000),
-                    Pubid::Core::Corrigendum.new(number: 2, year: 2000)])
-        end
-      end
-    end
-  end
-
-  describe "#parse" do
-    subject { described_class.parse(**params) }
-
-    context "when apply amendments" do
-      context "when several amendments" do
-        let(:params) { { publisher: "ISO", number: 1234, amendments: [{ number: 1, year: 2000 }, { number: 2, year: 2000 }] } }
-
-        it "asigns amendments" do
-          expect(subject.amendments)
-            .to eq([Pubid::Core::Amendment.new(number: 1, year: 2000),
-                    Pubid::Core::Amendment.new(number: 2, year: 2000)])
-        end
-      end
-
-    end
-  end
-
-  describe "#array_to_hash" do
-    subject { described_class.array_to_hash(input) }
-    let(:input) { [{ a: 1 }, { b: 2 }] }
-
-    it "merges all hashes" do
-      is_expected.to eq({ a: 1, b: 2 })
-    end
-
-    context "when same key repeating" do
-      let(:input) { [{ a: 1 }, { a: 2 }] }
-
-      it { is_expected.to eq({ a: [2, 1] }) }
-    end
-  end
-
-  describe "#transform" do
-    subject { described_class.transform(parsed_data) }
-
-    context "when have corrigendum" do
-      let(:parsed_data) { { publisher: "ISO", number: 1234, corrigendums: [{ number: 1, year: 2016 }] } }
-
-      it "transform parsed data" do
-        expect(subject.corrigendums).to eq([Pubid::Core::Corrigendum.new(number: 1, year: 2016)])
-      end
-
-      context "when only one corrigendum" do
-        let(:parsed_data) { { publisher: "ISO", number: 1234, corrigendums: { :number=>"1", :year=>"2016" } } }
-
-        it "transform parsed data" do
-          expect(subject.corrigendums).to eq([Pubid::Core::Corrigendum.new(number: 1, year: 2016)])
-        end
-      end
-    end
-
-    context "when have amendment" do
-      let(:parsed_data) { { publisher: "ISO", number: 1234, amendments: [{ number: 1, year: 2016 }] } }
-
-      it "transform parsed data" do
-        expect(subject.amendments).to eq([Pubid::Core::Amendment.new(number: 1, year: 2016)])
-      end
-
-      context "when only one amendment" do
-        let(:parsed_data) { { publisher: "ISO", number: 1234, amendments: { :number=>"1", :year=>"2016" } } }
-
-        it "transform parsed data" do
-          expect(subject.amendments).to eq([Pubid::Core::Amendment.new(number: 1, year: 2016)])
+          it { is_expected.to be_a(Stage) }
+          it { expect(subject.to_s).to eq("CD") }
         end
       end
     end

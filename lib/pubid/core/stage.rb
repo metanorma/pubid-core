@@ -1,27 +1,27 @@
 module Pubid::Core
   class Stage
-    attr_accessor :abbr, :harmonized_code
-
-    STAGES = STAGES_CONFIG["abbreviations"]
+    attr_accessor :config, :abbr, :harmonized_code
 
     # @param abbr [String, Symbol] abbreviation eg. :PWI, :WD
     # @param harmonized_code [String, Float, HarmonizedStageCode]
-    def initialize(abbr: nil, harmonized_code: nil)
+    # @param config [Configuration]
+    def initialize(config:, abbr: nil, harmonized_code: nil)
+      @config = config
       @abbr = abbr&.to_s
 
       if harmonized_code
         @harmonized_code = if harmonized_code.is_a?(HarmonizedStageCode)
                              harmonized_code
                            else
-                             HarmonizedStageCode.new(harmonized_code)
+                             HarmonizedStageCode.new(harmonized_code, config: config)
                            end
         @abbr ||= lookup_abbr(@harmonized_code.stages)
       end
 
       if abbr
-        raise Errors::StageInvalidError, "#{abbr} is not valid stage" unless STAGES.key?(abbr.to_s)
+        raise Errors::StageInvalidError, "#{abbr} is not valid stage" unless config.stages["abbreviations"].key?(abbr.to_s)
 
-        @harmonized_code ||= HarmonizedStageCode.new(lookup_code(abbr))
+        @harmonized_code ||= HarmonizedStageCode.new(lookup_code(abbr), config: config)
       end
     end
 
@@ -31,7 +31,7 @@ module Pubid::Core
     def lookup_abbr(lookup_code)
       lookup_code = lookup_code.first if lookup_code.is_a?(Array) && lookup_code.count == 1
 
-      STAGES.each do |abbr, codes|
+      config.stages["abbreviations"].each do |abbr, codes|
         case codes
         when Array
           if lookup_code.is_a?(Array)
@@ -51,25 +51,25 @@ module Pubid::Core
     end
 
     def lookup_code(lookup_abbr)
-      STAGES[lookup_abbr.to_s]
+      config.stages["abbreviations"][lookup_abbr.to_s]
     end
 
-    def self.parse(stage)
+    def self.parse(stage, config:)
       if /\A[\d.]+\z/.match?(stage)
-        Stage.new(harmonized_code: stage)
+        Stage.new(harmonized_code: stage, config: config)
       else
         raise Errors::StageInvalidError unless stage.is_a?(Symbol) || stage.is_a?(String) || stage.is_a?(Parslet::Slice)
 
-        Stage.new(abbr: stage.to_s)
+        Stage.new(abbr: stage.to_s, config: config)
       end
     end
 
     # @return [Boolean] true if stage exists
-    def self.has_stage?(stage)
+    def self.has_stage?(stage, config:)
       if stage.is_a?(Stage)
-        STAGES.key?(stage.abbr.to_sym)
+        config.stages["abbreviations"].key?(stage.abbr.to_sym)
       else
-        STAGES.key?(stage.to_s) || /\A[\d.]+\z/.match?(stage)
+        config.stages["abbreviations"].key?(stage.to_s) || /\A[\d.]+\z/.match?(stage)
       end
     end
 
@@ -80,7 +80,7 @@ module Pubid::Core
 
     # Return stage name, eg. "Draft International Standard" for "DIS"
     def name
-      STAGES_CONFIG["names"][abbr.to_s]
+      config.stages["names"][abbr.to_s]
     end
 
     # @param with_prf [Boolean]
