@@ -57,16 +57,21 @@ module Pubid::Core
         expect(subject.to_s).to eq("20.20")
       end
 
-      context "wrong code" do
-        let(:wrong_codes) do
-          %w[00.92 00.93 10.93 20.92 20.93 30.93 50.93 60.20 60.92 60.93 60.98
-             60.99 90.00 90.98 95.00 95.93 95.98]
-        end
+      context "invalid codes" do
+        invalid_codes = %w[
+          00.92 00.93
+          10.93
+          20.92 20.93
+          30.93
+          50.93
+          60.20 60.92 60.93 60.98 60.99
+          90.00 90.98
+          95.00 95.93 95.98
+        ]
 
-        it "raise an error" do
-          wrong_codes.each do |code|
-            expect { described_class.new(*code.split("."), config: config) }.to raise_exception(
-                                                                  Errors::HarmonizedStageCodeInvalidError)
+        invalid_codes.each do |code_string|
+          it "invalid stage code #{code_string} should raise an error" do
+            expect { described_class.new(*code_string.split("."), config: config) }.to raise_exception(Errors::HarmonizedStageCodeInvalidError)
           end
         end
       end
