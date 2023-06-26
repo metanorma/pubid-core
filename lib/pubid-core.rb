@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
-module Pubid::Core
-  def self.configuration
-    @configuration ||= Configuration.new
-  end
+module Pubid
+  module Core
+    def self.configuration
+      @configuration ||= Configuration.new
+    end
 
-  def self.configure
-    yield(configuration)
+    def self.configure
+      yield(configuration)
+    end
   end
 end
 
