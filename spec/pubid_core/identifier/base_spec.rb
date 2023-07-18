@@ -108,7 +108,7 @@ RSpec.describe Pubid::Core::Identifier::Base do
     context "when same key repeating" do
       let(:input) { [{ a: 1 }, { a: 2 }] }
 
-      it { is_expected.to eq({ a: [2, 1] }) }
+      it { is_expected.to eq({ a: [1, 2] }) }
     end
   end
 

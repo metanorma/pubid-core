@@ -94,7 +94,7 @@ module Pubid::Core
           params.inject({}) do |r, i|
             result = r
             i.each do |k, v|
-              result = result.merge(k => r.key?(k) ? [v, r[k]].flatten : v)
+              result = result.merge(k => r.key?(k) ? [r[k], v].flatten : v)
             end
             result
           end
