@@ -86,19 +86,19 @@ module Pubid::Core
 
       def typed_stage_abbrev
         if self.class::TYPED_STAGES.key?(typed_stage)
-          self.class::TYPED_STAGES[typed_stage][:abbr]
-        else
-          stage ? "#{stage.abbr} #{self.class.type[:key].to_s.upcase}" : self.class.type[:key].to_s.upcase
+          return self.class::TYPED_STAGES[typed_stage][:abbr]
         end
+
+        stage ? "#{stage.abbr} #{self.class.type[:key].to_s.upcase}" : self.class.type[:key].to_s.upcase
       end
 
       # Return typed stage name, eg. "Final Draft Technical Report" for "FDTR"
       def typed_stage_name
         if self.class::TYPED_STAGES.key?(typed_stage)
-          self.class::TYPED_STAGES[typed_stage][:name]
-        else
-          stage ? "#{stage.name} #{self.class.type[:title]}" : self.class.type[:title]
+          return self.class::TYPED_STAGES[typed_stage][:name]
         end
+
+        stage ? "#{stage.name} #{self.class.type[:title]}" : self.class.type[:title]
       end
 
       # @param stage [Stage, Symbol, String] stage or typed stage, e.g. "PWI", "NP", "50.00", Stage.new(abbr: :WD), "DTR"
@@ -107,23 +107,25 @@ module Pubid::Core
         if stage.is_a?(Stage)
           return [nil, stage] if stage.abbr
 
-          [self.class.resolve_typed_stage(stage.harmonized_code), stage]
+          return [self.class.resolve_typed_stage(stage.harmonized_code), stage]
           # @typed_stage = resolve_typed_stage(@stage.harmonized_code) unless @stage.abbr
-        elsif self.class.has_typed_stage?(stage)
-          self.class.find_typed_stage(stage)
-        else
-          parsed_stage = self.class.get_identifier.parse_stage(stage)
-          # resolve typed stage when harmonized code provided as stage
-          # or stage abbreviation was not resolved
-          if /\A[\d.]+\z/.match?(stage) || parsed_stage.empty_abbr?(with_prf: true)
-            [self.class.resolve_typed_stage(parsed_stage.harmonized_code), parsed_stage]
-          else
-            [nil, parsed_stage]
-          end
         end
+
+        if self.class.has_typed_stage?(stage)
+          return self.class.find_typed_stage(stage)
+        end
+
+        parsed_stage = self.class.get_identifier.parse_stage(stage)
+        # resolve typed stage when harmonized code provided as stage
+        # or stage abbreviation was not resolved
+        if /\A[\d.]+\z/.match?(stage) || parsed_stage.empty_abbr?(with_prf: true)
+          return [self.class.resolve_typed_stage(parsed_stage.harmonized_code), parsed_stage]
+        end
+
+        [nil, parsed_stage]
+
         # from IEC
         # @typed_stage = self.class::TYPED_STAGES[@typed_stage][:abbr] if @typed_stage
-
       end
 
       class << self
