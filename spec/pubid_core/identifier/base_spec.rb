@@ -1,4 +1,10 @@
-RSpec.describe Pubid::Core::Identifier::Base do
+class BaseTestIdentifier < Pubid::Core::Identifier::Base
+  def self.get_identifier
+    TestIdentifier
+  end
+end
+
+RSpec.describe BaseTestIdentifier do
   subject { described_class.parse(original) }
 
   describe "#initialize" do
@@ -205,6 +211,86 @@ RSpec.describe Pubid::Core::Identifier::Base do
     it { expect(TR.has_typed_stage?("DTR")).to be_truthy }
     it { expect(TR.has_typed_stage?("DTS")).to be_falsey }
   end
+
+  describe "#typed_stage_abbrev" do
+    context "when no stage" do
+      subject { TestIdentifier.create(type: :tr, number: 1, publisher: "ISO").typed_stage_abbrev }
+
+      it { expect(subject).to eq("TR") }
+    end
+
+    context "when stage" do
+      subject { TestIdentifier.create(type: :tr, number: 1, publisher: "ISO", stage: "WD").typed_stage_abbrev }
+
+      it { expect(subject).to eq("WD TR") }
+    end
+
+    context "when typed stage" do
+      subject { TestIdentifier.create(type: :tr, number: 1, publisher: "ISO", stage: :dtr).typed_stage_abbrev }
+
+      it { expect(subject).to eq("DTR") }
+    end
+  end
+
+  describe "#typed_stage_name" do
+    subject { TestIdentifier.create(type: :tr, number: 1, publisher: "ISO").typed_stage_name }
+
+    it { expect(subject).to eq("Technical Report") }
+  end
+
+  describe "#resolve_stage" do
+    subject { TR.new(publisher: "ISO", number: 1).resolve_stage(stage) }
+
+    context "when stage is a Stage class" do
+      context "stage have abbreviation" do
+        let(:stage) { TestIdentifier.build_stage(abbr: "WD") }
+
+        it "returns only stage" do
+          expect(subject).to eq([nil, stage])
+        end
+      end
+
+      context "stage have harmonized code but don't have abbreviation" do
+        let(:stage) { TestIdentifier.build_stage(harmonized_code: "40.00") }
+
+        it "returns only stage" do
+          expect(subject).to eq([:dtr, TestIdentifier.build_stage(harmonized_code: %w[40.00])])
+        end
+      end
+    end
+
+    context "stage is a typed stage" do
+      let(:stage) { "DTR" }
+
+      it "returns stage and according typed stage abbreviation" do
+        expect(subject).to eq([:dtr, TestIdentifier.build_stage(harmonized_code: %w[40.00])])
+      end
+    end
+
+    context "stage is a String" do
+      let(:stage) { "WD" }
+
+      it "returns stage" do
+        expect(subject).to eq([nil, TestIdentifier.build_stage(abbr: "WD")])
+      end
+    end
+
+    context "stage is harmonized code" do
+      let(:stage) { "40.00" }
+
+      it "returns stage and according typed stage abbreviation" do
+        expect(subject).to eq([:dtr, TestIdentifier.build_stage(harmonized_code: %w[40.00])])
+      end
+
+      context "harmonized code for stage" do
+        let(:stage) { "20.20" }
+
+        it "returns stage" do
+          expect(subject).to eq([nil, TestIdentifier.build_stage(abbr: "WD")])
+        end
+      end
+    end
+  end
 end
 
 class TR < Pubid::Core::Identifier::Base
@@ -238,8 +324,9 @@ module TestIdentifier
 end
 
 stages = {
-  "abbreviations" => { "WD" => %w[20.20 20.60 20.98 20.99] },
+  "abbreviations" => { "WD" => %w[20.20 20.60] },
   "codes_description" => { "20.20" => "Working draft (WD) study initiated",
+                           "20.60" => "Close of comment period",
                            "40.00" => "DIS registered" },
   "stage_codes" => { reparatory: "20" },
   "substage_codes" => { start_of_main_action: "20" },

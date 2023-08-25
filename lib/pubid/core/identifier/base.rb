@@ -3,7 +3,7 @@ module Pubid::Core
     class Base
       attr_accessor :number, :publisher, :copublisher, :part,
                     :type, :year, :edition, :language, :amendments,
-                    :corrigendums, :stage
+                    :corrigendums, :stage, :typed_stage
 
       TYPED_STAGES = {}.freeze
 
@@ -53,7 +53,8 @@ module Pubid::Core
         @year = year.to_i if year
         @edition = edition.to_i if edition
         @language = language.to_s if language
-        @stage = stage if stage
+
+        @typed_stage, @stage = resolve_stage(stage) if stage
       end
 
       # @return [String] Rendered URN identifier
@@ -62,7 +63,16 @@ module Pubid::Core
       end
 
       def get_params
-        instance_variables.map { |var| [var.to_s.gsub("@", "").to_sym, instance_variable_get(var)] }.to_h
+        instance_variables.map do |var|
+          # XXX: temporary hack to prepare typed_stage for rendering
+          # probably need to convert typed_stage to class, now we store
+          # typed_stage as key to typed stage (Symbol)
+          if var.to_s == "@typed_stage" && @typed_stage
+            [:typed_stage, self.class::TYPED_STAGES[@typed_stage][:abbr]]
+          else
+            [var.to_s.gsub("@", "").to_sym, instance_variable_get(var)]
+          end
+        end.to_h
       end
 
       def ==(other)
@@ -72,6 +82,48 @@ module Pubid::Core
       # Render identifier using default renderer
       def to_s
         self.class.get_renderer_class.new(get_params).render
+      end
+
+      def typed_stage_abbrev
+        if self.class::TYPED_STAGES.key?(typed_stage)
+          self.class::TYPED_STAGES[typed_stage][:abbr]
+        else
+          stage ? "#{stage.abbr} #{self.class.type[:key].to_s.upcase}" : self.class.type[:key].to_s.upcase
+        end
+      end
+
+      # Return typed stage name, eg. "Final Draft Technical Report" for "FDTR"
+      def typed_stage_name
+        if self.class::TYPED_STAGES.key?(typed_stage)
+          self.class::TYPED_STAGES[typed_stage][:name]
+        else
+          stage ? "#{stage.name} #{self.class.type[:title]}" : self.class.type[:title]
+        end
+      end
+
+      # @param stage [Stage, Symbol, String] stage or typed stage, e.g. "PWI", "NP", "50.00", Stage.new(abbr: :WD), "DTR"
+      # @return [[nil, Stage], [Symbol, Stage]] typed stage and stage values
+      def resolve_stage(stage)
+        if stage.is_a?(Stage)
+          return [nil, stage] if stage.abbr
+
+          [self.class.resolve_typed_stage(stage.harmonized_code), stage]
+          # @typed_stage = resolve_typed_stage(@stage.harmonized_code) unless @stage.abbr
+        elsif self.class.has_typed_stage?(stage)
+          self.class.find_typed_stage(stage)
+        else
+          parsed_stage = self.class.get_identifier.parse_stage(stage)
+          # resolve typed stage when harmonized code provided as stage
+          # or stage abbreviation was not resolved
+          if /\A[\d.]+\z/.match?(stage) || parsed_stage.empty_abbr?(with_prf: true)
+            [self.class.resolve_typed_stage(parsed_stage.harmonized_code), parsed_stage]
+          else
+            [nil, parsed_stage]
+          end
+        end
+        # from IEC
+        # @typed_stage = self.class::TYPED_STAGES[@typed_stage][:abbr] if @typed_stage
+
       end
 
       class << self
