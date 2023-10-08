@@ -44,9 +44,9 @@ module Pubid::Core::Renderer
     def render_supplement(supplement_params, **args)
       base = if supplement_params[:base].type == :amd
                # render inner amendment (cor -> amd -> base)
-               render_supplement(supplement_params[:base].get_params, **args)
+               render_supplement(supplement_params[:base].to_h, **args)
              else
-               self.class.new(supplement_params[:base].get_params).render_base_identifier(
+               self.class.new(supplement_params[:base].to_h).render_base_identifier(
                  # always render year for identifiers with supplement
                  **args.merge({ with_date: true }),
                )

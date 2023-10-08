@@ -59,10 +59,10 @@ module Pubid::Core
 
       # @return [String] Rendered URN identifier
       def urn
-        Renderer::Urn.new(get_params).render
+        Renderer::Urn.new(to_h).render
       end
 
-      def get_params
+      def to_h
         instance_variables.map do |var|
           # XXX: temporary hack to prepare typed_stage for rendering
           # probably need to convert typed_stage to class, now we store
@@ -76,12 +76,12 @@ module Pubid::Core
       end
 
       def ==(other)
-        get_params == other.get_params
+        to_h == other.to_h
       end
 
       # Render identifier using default renderer
       def to_s
-        self.class.get_renderer_class.new(get_params).render
+        self.class.get_renderer_class.new(to_h).render
       end
 
       def typed_stage_abbrev

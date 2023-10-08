@@ -291,6 +291,14 @@ RSpec.describe BaseTestIdentifier do
       end
     end
   end
+
+  describe "#to_h" do
+    subject { TestIdentifier.create(**params).to_h }
+
+    let(:params) { { type: "tr", number: 1, publisher: "ISO" } }
+
+    it { expect(subject).to eq(params) }
+  end
 end
 
 class TR < Pubid::Core::Identifier::Base
