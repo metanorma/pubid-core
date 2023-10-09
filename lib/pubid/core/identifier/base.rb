@@ -62,6 +62,7 @@ module Pubid::Core
         Renderer::Urn.new(to_h).render
       end
 
+      # @return [Hash] Identifier's parameters
       def to_h
         instance_variables.map do |var|
           # XXX: temporary hack to prepare typed_stage for rendering
