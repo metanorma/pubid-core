@@ -85,6 +85,10 @@ module Pubid::Core
         self.class.get_renderer_class.new(to_h).render
       end
 
+      def exclude(*attrs)
+        self.class.new(**to_h.reject { |k| attrs.include?(k) })
+      end
+
       def typed_stage_abbrev
         if stage.is_a?(TypedStage)
           return stage.to_s

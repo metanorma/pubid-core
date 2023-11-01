@@ -162,10 +162,21 @@ module Pubid::Core
         it { expect(subject).to eq(described_class.new(publisher: "ISO", number: 1)) }
       end
 
-    context "when different identifiers" do
-      it { expect(subject).not_to eq(described_class.new(publisher: "ISO", number: 2)) }
+      context "when different identifiers" do
+        it { expect(subject).not_to eq(described_class.new(publisher: "ISO", number: 2)) }
+      end
+
+      context "different years" do
+        let(:first) { described_class.new(publisher: "ISO", number: 1, year: 1999) }
+        let(:second) { described_class.new(publisher: "ISO", number: 1) }
+
+        it { expect(first).not_to eq(second) }
+
+        context "when excluding year" do
+          it { expect(first.exclude(:year)).to eq(second) }
+        end
+      end
     end
-  end
 
     describe "#resolve_typed_stage" do
       context "when harmonized code is matching" do
