@@ -7,11 +7,6 @@ module Pubid::Core
     # @see Pubid::Identifier::Base.initialize for available options
     def create(**opts)
       resolve_identifier(opts)
-      # resolve_identifier(
-      #   opts[:type],
-      #   opts[:stage],
-      #   opts.reject { |k, _v| [:type, :stage].include?(k) },
-      # )
     end
 
     # @param typed_stage_or_stage [String] typed stage or stage
@@ -61,6 +56,10 @@ module Pubid::Core
 
     def build_harmonized_stage_code(stage_or_code, substage = "00")
       HarmonizedStageCode.new(stage_or_code, substage, config: @config)
+    end
+
+    def build_typed_stage(**args)
+      @config.typed_stage_class.new(config: @config, **args)
     end
   end
 end

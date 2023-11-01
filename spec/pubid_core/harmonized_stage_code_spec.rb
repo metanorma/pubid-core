@@ -1,35 +1,8 @@
 module Pubid::Core
   RSpec.describe HarmonizedStageCode do
-    subject { described_class.new(stage, substage, config: config) }
+    subject { described_class.new(stage, substage, config: DummyTestIdentifier.config) }
     let(:stage) { nil }
     let(:substage) { nil }
-    let(:config) do
-      config = Pubid::Core::Configuration.new
-      config.stages = {}
-      config.stages["abbreviations"] = {
-        "WD" => %w[20.20 20.60 20.98 20.99],
-      }
-      config.stages["codes_description"] = {
-        "10.98" => "New project rejected",
-        "20.00" => "New project registered in TC/SC work programme",
-        "20.20" => "Working draft (WD) study initiated",
-        "20.60" => "Close of comment period",
-        "20.98" => "Project deleted",
-        "60.00" => "International Standard under publication",
-        "60.60" => "International Standard published",
-      }
-      config.stages["stage_codes"] = {
-        "preparatory" => "20",
-      }
-      config.stages["substage_codes"] = {
-        "start_of_main_action" => "20",
-      }
-      config.stages["draft_codes"] = %w[20.00 20.20 20.60]
-      config.stages["canceled_codes"] = %w[00.98 10.98 20.98]
-      config.stages["published_codes"] = %w[60.00 60.60]
-
-      config
-    end
 
     context "when symbol code" do
       let(:stage) { :preparatory }
@@ -71,7 +44,7 @@ module Pubid::Core
 
         invalid_codes.each do |code_string|
           it "invalid stage code #{code_string} should raise an error" do
-            expect { described_class.new(*code_string.split("."), config: config) }.to raise_exception(Errors::HarmonizedStageCodeInvalidError)
+            expect { described_class.new(*code_string.split("."), config: DummyTestIdentifier.config) }.to raise_exception(Errors::HarmonizedStageCodeInvalidError)
           end
         end
       end
@@ -94,7 +67,7 @@ module Pubid::Core
       let(:stage) { %w[20.00 20.20] }
 
       it "returns true when compare with stage included in fuzzy stage" do
-        expect(subject == HarmonizedStageCode.new("20.20", config: config)).to be_truthy
+        expect(subject == HarmonizedStageCode.new("20.20", config: DummyTestIdentifier.config)).to be_truthy
       end
 
       it "returns true for #fuzzy?" do

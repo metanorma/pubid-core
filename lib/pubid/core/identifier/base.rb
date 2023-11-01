@@ -3,7 +3,7 @@ module Pubid::Core
     class Base
       attr_accessor :number, :publisher, :copublisher, :part,
                     :type, :year, :edition, :language, :amendments,
-                    :corrigendums, :stage, :typed_stage
+                    :corrigendums, :stage
 
       TYPED_STAGES = {}.freeze
 
@@ -54,7 +54,7 @@ module Pubid::Core
         @edition = edition.to_i if edition
         @language = language.to_s if language
 
-        @typed_stage, @stage = resolve_stage(stage) if stage
+        @stage = resolve_stage(stage) if stage
       end
 
       # @return [String] Rendered URN identifier
@@ -86,8 +86,8 @@ module Pubid::Core
       end
 
       def typed_stage_abbrev
-        if self.class::TYPED_STAGES.key?(typed_stage)
-          return self.class::TYPED_STAGES[typed_stage][:abbr]
+        if stage.is_a?(TypedStage)
+          return stage.to_s
         end
 
         stage ? "#{stage.abbr} #{self.class.type[:key].to_s.upcase}" : self.class.type[:key].to_s.upcase
@@ -95,8 +95,8 @@ module Pubid::Core
 
       # Return typed stage name, eg. "Final Draft Technical Report" for "FDTR"
       def typed_stage_name
-        if self.class::TYPED_STAGES.key?(typed_stage)
-          return self.class::TYPED_STAGES[typed_stage][:name]
+        if self.class::TYPED_STAGES.key?(stage&.typed_stage)
+          return self.class::TYPED_STAGES[stage.typed_stage][:name]
         end
 
         stage ? "#{stage.name} #{self.class.type[:title]}" : self.class.type[:title]
@@ -106,9 +106,14 @@ module Pubid::Core
       # @return [[nil, Stage], [Symbol, Stage]] typed stage and stage values
       def resolve_stage(stage)
         if stage.is_a?(Stage)
-          return [nil, stage] if stage.abbr
+          # return [nil, stage] if stage.abbr
+          # return stage if stage.abbr
 
-          return [self.class.resolve_typed_stage(stage.harmonized_code), stage]
+          # return [self.class.resolve_typed_stage(stage.harmonized_code), stage]
+          unless stage.abbr
+            stage.typed_stage = self.class.resolve_typed_stage(stage.harmonized_code)
+          end
+          return stage
           # @typed_stage = resolve_typed_stage(@stage.harmonized_code) unless @stage.abbr
         end
 
@@ -120,10 +125,10 @@ module Pubid::Core
         # resolve typed stage when harmonized code provided as stage
         # or stage abbreviation was not resolved
         if /\A[\d.]+\z/.match?(stage) || parsed_stage.empty_abbr?(with_prf: true)
-          return [self.class.resolve_typed_stage(parsed_stage.harmonized_code), parsed_stage]
+          parsed_stage.typed_stage = self.class.resolve_typed_stage(parsed_stage.harmonized_code)
         end
 
-        [nil, parsed_stage]
+        parsed_stage
 
         # from IEC
         # @typed_stage = self.class::TYPED_STAGES[@typed_stage][:abbr] if @typed_stage
@@ -239,10 +244,12 @@ module Pubid::Core
         # @return [[Symbol, Stage]] typed stage and stage with assigned harmonized codes
         def find_typed_stage(typed_stage)
           if typed_stage.is_a?(Symbol)
-            return [typed_stage,
-                    get_identifier.build_stage(
-                      harmonized_code: get_identifier.build_harmonized_stage_code(self::TYPED_STAGES[typed_stage][:harmonized_stages])),
-            ]
+            return get_identifier
+                .build_typed_stage(
+                  harmonized_code:
+                    get_identifier.build_harmonized_stage_code(self::TYPED_STAGES[typed_stage][:harmonized_stages]),
+                  abbr: typed_stage,
+                )
           end
 
           typed_stage = self::TYPED_STAGES.find do |_, v|
@@ -255,9 +262,9 @@ module Pubid::Core
             end
           end
 
-          [typed_stage.first,
-           get_identifier.build_stage(
-             harmonized_code: get_identifier.build_harmonized_stage_code(typed_stage[1][:harmonized_stages]))]
+          get_identifier.build_typed_stage(harmonized_code:
+                                       get_identifier.build_harmonized_stage_code(typed_stage[1][:harmonized_stages]),
+                                     abbr: typed_stage.first)
         end
 
         # Resolve typed stage using stage harmonized stage code
