@@ -57,7 +57,7 @@ jobs:
         working-directory: dependent
 
     - run: |
-        bundle remove pubid-core || true
+        sed -i.bak '/pubid-core/d' pubid-${{ matrix.flavor }}.gemspec
         bundle add pubid-core --path ..
       working-directory: dependent
 
