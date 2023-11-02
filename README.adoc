@@ -1,2 +1,20 @@
 = Publication identifiers parsing library
 
+== Usage
+
+=== Exclude attributes when compare
+
+[source,ruby]
+----
+require "pubid-core"
+
+pubid_first = Identifier.parse("ISO 1:1999")
+pubid_second = Identifier.parse("ISO 1")
+
+pubid_first == pubid_second
+=> false
+
+pubid_first.exclude(:year) == pubid_second
+=> true
+
+----
