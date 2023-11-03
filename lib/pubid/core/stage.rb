@@ -101,5 +101,9 @@ module Pubid::Core
     def to_s(opts = {})
       empty_abbr?(**opts) ? "" : abbr
     end
+
+    def to_h
+      abbr
+    end
   end
 end

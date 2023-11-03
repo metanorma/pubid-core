@@ -33,5 +33,10 @@ module Pubid::Core
           ":#{@number}:v1"
         end
     end
+
+    def to_h
+      { number: number,
+        year: year }
+    end
   end
 end

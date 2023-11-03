@@ -16,5 +16,16 @@ pubid_first == pubid_second
 
 pubid_first.exclude(:year) == pubid_second
 => true
+----
 
+=== Using #to_h to convert identifier to hash
+
+
+[source,ruby]
+----
+require "pubid-core"
+
+pubid = Identifier.parse("ISO 1:1999")
+pubid.to_h
+=> { publisher: "ISO", number: 1, year: 1999 }
 ----

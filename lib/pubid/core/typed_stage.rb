@@ -5,7 +5,7 @@ module Pubid::Core
     # @param config [Configuration]
     # @param abbr [Symbol] typed stage symbol, e.g. :dtr
     # @param harmonized_code [String, Float, HarmonizedStageCode]
-    def initialize(config:, abbr: nil, harmonized_code: nil)
+    def initialize(config:, abbr:, harmonized_code: nil)
       @config = config
       @abbr = abbr
 
@@ -18,19 +18,17 @@ module Pubid::Core
         # @abbr ||= lookup_abbr(@harmonized_code.stages)
       end
 
-      if abbr
-        raise Errors::TypedStageInvalidError, "#{abbr} is not valid typed stage" unless config.typed_stages.key?(abbr)
+      raise Errors::TypedStageInvalidError, "#{abbr} is not valid typed stage" unless config.typed_stages.key?(abbr)
 
-        @harmonized_code ||= HarmonizedStageCode.new(abbr, config: config)
-      end
+      @harmonized_code ||= HarmonizedStageCode.new(abbr, config: config)
     end
 
     # Compares one stage with another
     # should return false if
     def ==(other)
-      return false unless other
+      return false unless other.is_a?(self.class)
 
-      return abbr == other if other.is_a?(Symbol)
+      # return abbr == other if other.is_a?(Symbol)
 
       other&.harmonized_code == harmonized_code
     end
