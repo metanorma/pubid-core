@@ -275,8 +275,8 @@ module Pubid::Core
       context "stage is a typed stage" do
         let(:stage) { "DTR" }
 
-        it "returns stage and according typed stage abbreviation" do
-          expect(subject).to eq(DummyTestIdentifier.build_stage(harmonized_code: %w[40.00], typed_stage: :dtr))
+        it "returns typed stage and according abbreviation" do
+          expect(subject).to eq(DummyTestIdentifier.build_typed_stage(harmonized_code: %w[40.00], abbr: :dtr))
         end
       end
 
@@ -322,6 +322,18 @@ module Pubid::Core
 
       context "with typed_stage" do
         let(:params) { { type: "tr", number: 1, publisher: "ISO", stage: :dtr } }
+
+        it { expect(subject).to eq(params) }
+      end
+
+      context "with stage" do
+        let(:params) { { type: "tr", number: 1, publisher: "ISO", stage: "WD" } }
+
+        it { expect(subject).to eq(params) }
+      end
+
+      context "with amendments" do
+        let(:params) { { type: "tr", number: 1, publisher: "ISO", amendments: [{ number: 1, year: 2000 }, { number: 2, year: 2000 }] } }
 
         it { expect(subject).to eq(params) }
       end

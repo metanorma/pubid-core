@@ -65,14 +65,15 @@ module Pubid::Core
       # @return [Hash] Identifier's parameters
       def to_h
         instance_variables.map do |var|
-          # XXX: temporary hack to prepare typed_stage for rendering
-          # probably need to convert typed_stage to class, now we store
-          # typed_stage as key to typed stage (Symbol)
-          if var.to_s == "@typed_stage" && @typed_stage
-            [:typed_stage, self.class::TYPED_STAGES[@typed_stage][:abbr]]
-          else
-            [var.to_s.gsub("@", "").to_sym, instance_variable_get(var)]
-          end
+          value = instance_variable_get(var)
+
+          [var.to_s.gsub("@", "").to_sym,
+           if value.is_a?(Array)
+             value.map { |v| v.respond_to?(:to_h) ? v.to_h : v }
+           else
+             value.respond_to?(:to_h) ? value.to_h : value
+           end
+          ]
         end.to_h
       end
 

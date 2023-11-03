@@ -11,6 +11,8 @@ module Pubid::Core
     end
 
     def <=>(other)
+      return 1 unless other.is_a?(self.class)
+
       return 0 if year.nil? && other.year
 
       return year <=> other.year if number == other.number
@@ -32,6 +34,11 @@ module Pubid::Core
         else
           ":#{@number}:v1"
         end
+    end
+
+    def to_h
+      { number: number,
+        year: year }
     end
   end
 end
