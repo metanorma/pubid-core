@@ -70,6 +70,8 @@ module Pubid::Core
           [var.to_s.gsub("@", "").to_sym,
            if value.is_a?(Array)
              value.map { |v| v.respond_to?(:to_h) ? v.to_h : v }
+           elsif value.nil?
+             nil
            else
              value.respond_to?(:to_h) ? value.to_h : value
            end

@@ -337,6 +337,12 @@ module Pubid::Core
 
         it { expect(subject).to eq(params) }
       end
+
+      context "when attribute is nil" do
+        let(:params) { { type: "tr", number: nil, publisher: "ISO" } }
+
+        it { expect(subject).to eq(params) }
+      end
     end
   end
 end
