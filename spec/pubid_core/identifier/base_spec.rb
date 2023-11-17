@@ -333,9 +333,25 @@ module Pubid::Core
       end
 
       context "with amendments" do
-        let(:params) { { type: "tr", number: 1, publisher: "ISO", amendments: [{ number: 1, year: 2000 }, { number: 2, year: 2000 }] } }
+        let(:params) do
+          { type: "tr", number: 1, publisher: "ISO",
+            amendments: [Pubid::Core::Amendment.new(number: 1, year: 2000),
+                         Pubid::Core::Amendment.new(number: 2, year: 2000)]
+          }
+        end
 
-        it { expect(subject).to eq(params) }
+        it "returns amendments as hashes" do
+          expect(subject[:amendments]).to eq([{ number: 1, year: 2000 },
+                                              { number: 2, year: 2000 }])
+        end
+
+        context "when deep is false" do
+          subject { DummyTestIdentifier.create(**params).to_h(deep: false) }
+
+          it "don't call #to_h on elements inside hash" do
+            expect(subject).to eq(params)
+          end
+        end
       end
 
       context "when attribute is nil" do

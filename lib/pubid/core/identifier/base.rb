@@ -63,17 +63,17 @@ module Pubid::Core
       end
 
       # @return [Hash] Identifier's parameters
-      def to_h
+      def to_h(deep: true)
         instance_variables.map do |var|
           value = instance_variable_get(var)
 
           [var.to_s.gsub("@", "").to_sym,
            if value.is_a?(Array)
-             value.map { |v| v.respond_to?(:to_h) ? v.to_h : v }
+             value.map { |v| (v.respond_to?(:to_h) && deep) ? v.to_h : v }
            elsif value.nil?
              nil
            else
-             value.respond_to?(:to_h) ? value.to_h : value
+             (value.respond_to?(:to_h) && deep) ? value.to_h : value
            end
           ]
         end.to_h
@@ -85,7 +85,7 @@ module Pubid::Core
 
       # Render identifier using default renderer
       def to_s
-        self.class.get_renderer_class.new(to_h).render
+        self.class.get_renderer_class.new(to_h(deep: false)).render
       end
 
       def exclude(*attrs)
