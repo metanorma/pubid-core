@@ -102,8 +102,8 @@ module Pubid::Core
 
       # Return typed stage name, eg. "Final Draft Technical Report" for "FDTR"
       def typed_stage_name
-        if self.class::TYPED_STAGES.key?(stage&.typed_stage)
-          return self.class::TYPED_STAGES[stage.typed_stage][:name]
+        if stage.is_a?(TypedStage) && self.class::TYPED_STAGES.key?(stage.abbr)
+          return self.class::TYPED_STAGES[stage.abbr][:name]
         end
 
         stage ? "#{stage.name} #{self.class.type[:title]}" : self.class.type[:title]
@@ -113,15 +113,9 @@ module Pubid::Core
       # @return [[nil, Stage], [Symbol, Stage]] typed stage and stage values
       def resolve_stage(stage)
         if stage.is_a?(Stage)
-          # return [nil, stage] if stage.abbr
-          # return stage if stage.abbr
+          return self.class.resolve_typed_stage(stage.harmonized_code) || stage unless stage.abbr
 
-          # return [self.class.resolve_typed_stage(stage.harmonized_code), stage]
-          unless stage.abbr
-            stage.typed_stage = self.class.resolve_typed_stage(stage.harmonized_code)
-          end
           return stage
-          # @typed_stage = resolve_typed_stage(@stage.harmonized_code) unless @stage.abbr
         end
 
         if self.class.has_typed_stage?(stage)
@@ -132,7 +126,7 @@ module Pubid::Core
         # resolve typed stage when harmonized code provided as stage
         # or stage abbreviation was not resolved
         if /\A[\d.]+\z/.match?(stage) || parsed_stage.empty_abbr?(with_prf: true)
-          parsed_stage.typed_stage = self.class.resolve_typed_stage(parsed_stage.harmonized_code)
+          return self.class.resolve_typed_stage(parsed_stage.harmonized_code) || parsed_stage
         end
 
         parsed_stage
@@ -280,7 +274,7 @@ module Pubid::Core
         def resolve_typed_stage(harmonized_code)
           self::TYPED_STAGES.each do |k, v|
             if (v[:harmonized_stages] & harmonized_code.stages) == harmonized_code.stages
-              return k
+              return get_identifier.build_typed_stage(abbr: k, harmonized_code: harmonized_code)
             end
           end
           nil

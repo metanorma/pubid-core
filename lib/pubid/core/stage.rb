@@ -1,14 +1,13 @@
 module Pubid::Core
   class Stage
-    attr_accessor :config, :abbr, :harmonized_code, :typed_stage
+    attr_accessor :config, :abbr, :harmonized_code
 
     # @param abbr [String, Symbol] abbreviation eg. :PWI, :WD
     # @param harmonized_code [String, Float, HarmonizedStageCode]
     # @param config [Configuration]
-    def initialize(config:, abbr: nil, harmonized_code: nil, typed_stage: nil)
+    def initialize(config:, abbr: nil, harmonized_code: nil)
       @config = config
       @abbr = abbr&.to_s
-      @typed_stage = typed_stage
 
       if harmonized_code
         @harmonized_code = if harmonized_code.is_a?(HarmonizedStageCode)

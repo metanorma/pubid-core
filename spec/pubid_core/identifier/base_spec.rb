@@ -182,7 +182,7 @@ module Pubid::Core
       context "when harmonized code is matching" do
         let(:harmonized_code) { DummyTestIdentifier.build_harmonized_stage_code("40.00")}
 
-        it { expect(DummyTechnicalReportType.resolve_typed_stage(harmonized_code)).to eq(:dtr) }
+        it { expect(DummyTechnicalReportType.resolve_typed_stage(harmonized_code).abbr).to eq(:dtr) }
       end
 
       context "when harmonized code is not matching" do
@@ -249,6 +249,15 @@ module Pubid::Core
       subject { DummyTestIdentifier.create(type: :tr, number: 1, publisher: "ISO").typed_stage_name }
 
       it { expect(subject).to eq("Technical Report") }
+
+      context "when stage is typed stage" do
+        subject do
+          DummyTestIdentifier.create(type: :tr, number: 1, publisher: "ISO",
+                                     stage: DummyTestIdentifier.build_typed_stage(abbr: :dtr)).typed_stage_name
+        end
+
+        it { expect(subject).to eq("Draft Technical Report") }
+      end
     end
 
     describe "#resolve_stage" do
@@ -267,7 +276,7 @@ module Pubid::Core
           let(:stage) { DummyTestIdentifier.build_stage(harmonized_code: "40.00") }
 
           it "returns stage with resolved typed stage" do
-            expect(subject).to eq(DummyTestIdentifier.build_stage(harmonized_code: %w[40.00], typed_stage: :dtr))
+            expect(subject).to eq(DummyTestIdentifier.build_typed_stage(harmonized_code: %w[40.00], abbr: :dtr))
           end
         end
       end
@@ -292,7 +301,7 @@ module Pubid::Core
         let(:stage) { "40.00" }
 
         it "returns stage and according typed stage abbreviation" do
-          expect(subject).to eq(DummyTestIdentifier.build_stage(harmonized_code: %w[40.00], typed_stage: :dtr))
+          expect(subject).to eq(DummyTestIdentifier.build_typed_stage(harmonized_code: %w[40.00], abbr: :dtr))
         end
 
         context "harmonized code for stage" do

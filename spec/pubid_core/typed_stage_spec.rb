@@ -24,5 +24,14 @@ module Pubid::Core
         end
       end
     end
+
+    context "when harmonized code" do
+      subject { described_class.new(config: DummyTestIdentifier.config, harmonized_code: "50.00") }
+
+      it "returns abbreviation related to provided harmonized code" do
+        expect(subject.abbr).to eq(:fdis)
+      end
+
+    end
   end
 end
