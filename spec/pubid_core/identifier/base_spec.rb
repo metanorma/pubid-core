@@ -325,25 +325,25 @@ module Pubid::Core
     describe "#to_h" do
       subject { DummyTestIdentifier.create(**params).to_h }
 
-      let(:params) { { type: "tr", number: 1, publisher: "ISO" } }
+      let(:params) { { type: :tr, number: 1, publisher: "ISO" } }
 
       it { expect(subject).to eq(params) }
 
       context "with typed_stage" do
-        let(:params) { { type: "tr", number: 1, publisher: "ISO", stage: :dtr } }
+        let(:params) { { type: :tr, number: 1, publisher: "ISO", stage: :dtr } }
 
         it { expect(subject).to eq(params) }
       end
 
       context "with stage" do
-        let(:params) { { type: "tr", number: 1, publisher: "ISO", stage: "WD" } }
+        let(:params) { { type: :tr, number: 1, publisher: "ISO", stage: "WD" } }
 
         it { expect(subject).to eq(params) }
       end
 
       context "with amendments" do
         let(:params) do
-          { type: "tr", number: 1, publisher: "ISO",
+          { type: :tr, number: 1, publisher: "ISO",
             amendments: [Pubid::Core::Amendment.new(number: 1, year: 2000),
                          Pubid::Core::Amendment.new(number: 2, year: 2000)]
           }
@@ -364,7 +364,13 @@ module Pubid::Core
       end
 
       context "when attribute is nil" do
-        let(:params) { { type: "tr", number: nil, publisher: "ISO" } }
+        let(:params) { { type: :tr, number: nil, publisher: "ISO" } }
+
+        it { expect(subject).to eq(params) }
+      end
+
+      context "when created using type class" do
+        subject { DummyTechnicalReportType.new(**params.dup.tap { |h| h.delete(:type) }).to_h }
 
         it { expect(subject).to eq(params) }
       end

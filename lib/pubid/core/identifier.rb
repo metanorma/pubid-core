@@ -12,10 +12,10 @@ module Pubid::Core
     # @param typed_stage_or_stage [String] typed stage or stage
     # @return identifier's class
     def resolve_identifier(parameters = {})
-      return @config.default_type.new(**parameters) if parameters[:type].nil? && parameters[:stage].nil?
+      return @config.default_type.new(**parameters.dup.tap { |h| h.delete(:type) }) if parameters[:type].nil? && parameters[:stage].nil?
 
       @config.types.each do |identifier_type|
-        return identifier_type.new(**parameters) if identifier_type.type_match?(parameters)
+        return identifier_type.new(**parameters.dup.tap { |h| h.delete(:type) }) if identifier_type.type_match?(parameters)
       end
 
       # When stage is not typed stage and type is not defined

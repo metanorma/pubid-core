@@ -1,8 +1,7 @@
 module Pubid::Core
   module Identifier
     class Base
-      attr_accessor :number, :publisher, :copublisher, :part,
-                    :type, :year, :edition, :language, :amendments,
+      attr_accessor :number, :publisher, :copublisher, :part, :year, :edition, :language, :amendments,
                     :corrigendums, :stage
 
       TYPED_STAGES = {}.freeze
@@ -21,7 +20,7 @@ module Pubid::Core
       # @param corrigendums [Array<Corrigendum>,Array<Hash>] document's corrigendums
       # @see Amendment
       # @see Corrigendum
-      def initialize(publisher:, number:, copublisher: nil, part: nil, type: nil,
+      def initialize(publisher:, number:, copublisher: nil, part: nil,
                      year: nil, edition: nil, language: nil, amendments: nil,
                      corrigendums: nil, stage: nil)
 
@@ -49,7 +48,6 @@ module Pubid::Core
         @number = number
         @copublisher = copublisher if copublisher
         @part = part.to_s if part
-        @type = type.to_s if type
         @year = year.to_i if year
         @edition = edition.to_i if edition
         @language = language.to_s if language
@@ -64,7 +62,7 @@ module Pubid::Core
 
       # @return [Hash] Identifier's parameters
       def to_h(deep: true)
-        instance_variables.map do |var|
+        result = instance_variables.map do |var|
           value = instance_variable_get(var)
 
           [var.to_s.gsub("@", "").to_sym,
@@ -77,6 +75,12 @@ module Pubid::Core
            end
           ]
         end.to_h
+
+        if respond_to?(:type)
+          result[:type] = self.type[:key]
+        end
+
+        result
       end
 
       def ==(other)
