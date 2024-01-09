@@ -77,7 +77,7 @@ module Pubid::Core
         end.to_h
 
         if respond_to?(:type)
-          result[:type] = self.type[:key]
+          result[:type] = self.type[:short]
         end
 
         result
