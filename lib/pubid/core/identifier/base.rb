@@ -45,7 +45,7 @@ module Pubid::Core
         end
 
         @publisher = publisher.to_s
-        @number = number
+        @number = number&.to_s
         @copublisher = copublisher if copublisher
         @part = part.to_s if part
         @year = year.to_i if year
