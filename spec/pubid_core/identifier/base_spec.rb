@@ -375,5 +375,23 @@ module Pubid::Core
         it { expect(subject).to eq(params) }
       end
     end
+
+    describe "#exclude" do
+      subject { DummyTestIdentifier.create(**params) }
+
+      let(:params) { { number: "1", publisher: "ISO", year: 1999 } }
+
+      it { expect(subject.exclude(:year).to_h).to eq({ number: "1", publisher: "ISO" })}
+
+      it { expect(subject.exclude(:year, base: [:year]).to_h).to eq({ number: "1", publisher: "ISO" }) }
+
+      context "when identifier is supplement" do
+        let(:params) { { publisher: "ISO", number: "1", year: 1999, type: :amd, base: { number: 1, year: 2000 } } }
+
+        it { expect(subject.exclude(:year, base: [:year]).to_h).to eq({ publisher: "ISO", number: "1", type: "Amd", base: { number: 1 } }) }
+
+        it { expect(subject.exclude(base: [:year]).to_h).to eq({ publisher: "ISO", number: "1", type: "Amd", year: 1999, base: { number: 1 } }) }
+      end
+    end
   end
 end

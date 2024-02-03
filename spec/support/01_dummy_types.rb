@@ -54,7 +54,23 @@ module Pubid::Core
     }.freeze
 
     def self.type
-      { key: :is, title: "International Standard", short: "IS" }
+      { key: :is, title: "International Standard", short: nil }
+    end
+  end
+
+  class DummyAmendment < Identifier::Base
+    extend Forwardable
+    def_delegators 'Pubid::Core::DummyAmendment', :type
+
+    attr_accessor :base
+
+    def initialize(base: nil, **opts)
+      @base = base
+      super(**opts)
+    end
+
+    def self.type
+      { key: :amd, title: "Amendment", short: "Amd" }
     end
   end
 

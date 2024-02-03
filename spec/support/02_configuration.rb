@@ -9,7 +9,7 @@ module Pubid::Core
   config.stages = {}
   # config.type_class = Type
   config.default_type = DummyInternationalStandardType
-  config.types = [DummyInternationalStandardType, DummyTechnicalReportType]
+  config.types = [DummyInternationalStandardType, DummyTechnicalReportType, DummyAmendment]
 
 
   config.stages["abbreviations"] = {

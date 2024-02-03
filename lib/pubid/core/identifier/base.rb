@@ -61,7 +61,7 @@ module Pubid::Core
       end
 
       # @return [Hash] Identifier's parameters
-      def to_h(deep: true)
+      def to_h(deep: true, add_type: true)
         result = instance_variables.map do |var|
           value = instance_variable_get(var)
 
@@ -76,8 +76,8 @@ module Pubid::Core
           ]
         end.to_h
 
-        if respond_to?(:type)
-          result[:type] = self.type[:short]
+        if add_type && respond_to?(:type) && type[:short]
+          result[:type] = type[:short]
         end
 
         result
@@ -92,8 +92,22 @@ module Pubid::Core
         self.class.get_renderer_class.new(to_h(deep: false)).render
       end
 
-      def exclude(*attrs)
-        self.class.new(**to_h.reject { |k| attrs.include?(k) })
+      def exclude(*args)
+        nested_exclusions, top_level_exclusions = args.partition { |arg| arg.is_a?(Hash) }
+
+        nested_exclusions = nested_exclusions.reduce({}, :merge)
+
+        excluded_hash = to_h(add_type: false)
+          .reject { |k, v| top_level_exclusions.include?(k) }
+          .each_with_object({}) do |(k, v), memo|
+            memo[k] = if v.is_a?(Hash) && nested_exclusions.key?(k)
+                        v.reject { |key, _| nested_exclusions[k].include?(key) }
+                      else
+                        v
+                      end
+          end
+
+        self.class.new(**excluded_hash)
       end
 
       def typed_stage_abbrev
