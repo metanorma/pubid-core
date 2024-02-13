@@ -1,9 +1,13 @@
 name: dependent-gems-test
 
 on:
+  push:
+    branches: [ master, main ]
+    tags: [ v* ]
+  pull_request:
   workflow_dispatch:
   repository_dispatch:
-    types: [ tests-passed, release-passed ]
+    types: [ release-passed ]
 
 jobs:
   build-matrix:
