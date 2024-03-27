@@ -36,6 +36,7 @@ module Pubid::Core
     # Parse identifier from title
     def set_config(config)
       @config = config
+      @config.identifier_module = self
     end
 
     def build_stage(**args)
@@ -60,6 +61,12 @@ module Pubid::Core
 
     def build_typed_stage(**args)
       @config.typed_stage_class.new(config: @config, **args)
+    end
+
+    def parseable?(pubid)
+      @config.prefixes.any? do |prefix|
+        pubid.start_with?(prefix)
+      end
     end
   end
 end

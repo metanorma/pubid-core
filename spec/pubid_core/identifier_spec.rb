@@ -88,5 +88,48 @@ module Pubid::Core
         end
       end
     end
+
+    describe "#parseable?" do
+      subject { described_class.parseable?(pubid) }
+      let(:config) do
+        config = Pubid::Core::Configuration.new
+        config.prefixes = prefixes
+        config
+      end
+
+      let(:prefixes) { ["ISO"] }
+
+      context "when identifier parseable by current module" do
+        let(:pubid) { "ISO 123" }
+
+        it { is_expected.to be_truthy }
+      end
+
+      context "when identifier is not parseable by current module" do
+        let(:pubid) { "UNKNOWN 123" }
+
+        it { is_expected.to be_falsey }
+      end
+
+      context "when module have several prefixes" do
+        let(:prefixes) { %w[NBS NIST] }
+
+        context "when prefix matches" do
+          let(:pubid) { "NIST 123" }
+
+          it { is_expected.to be_truthy }
+        end
+
+        context "when prefix is not matching" do
+          let(:pubid) { "UNKNOWN 123" }
+
+          it { is_expected.to be_falsey }
+        end
+      end
+    end
+
+    it "should assign current module name as default identifier prefix" do
+      expect(described_class.config.prefixes).to eq(["CORE"])
+    end
   end
 end
