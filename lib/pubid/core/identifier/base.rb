@@ -80,7 +80,7 @@ module Pubid::Core
           result[:type] = type[:short]
         end
 
-        result
+        result.reject { |k, v| k != :number && v.nil? }
       end
 
       def ==(other)
