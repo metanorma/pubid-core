@@ -84,7 +84,13 @@ module Pubid::Core
       end
 
       def ==(other)
-        to_h == other.to_h
+        if other.is_a?(String)
+          to_s == other
+        elsif other.is_a?(Identifier::Base)
+          to_h == other.to_h
+        else
+          raise Errors::WrongTypeError, "cannot compare with #{other.class} type"
+        end
       end
 
       # Render identifier using default renderer

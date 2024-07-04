@@ -3,6 +3,10 @@ module Pubid::Core
     def self.get_identifier
       DummyTestIdentifier
     end
+
+    def to_s
+      "#{@publisher} #{@number}"
+    end
   end
 
   RSpec.describe BaseTestIdentifier do
@@ -175,6 +179,32 @@ module Pubid::Core
         context "when excluding year" do
           it { expect(first.exclude(:year)).to eq(second) }
         end
+      end
+
+      context "when comparing with String" do
+        context "when equal identifiers" do
+          it { expect(subject).to eq("ISO 1") }
+        end
+
+        context "when different identifiers" do
+          it { expect(subject).not_to eq("ISO 2") }
+        end
+      end
+
+      context "class inherited Identifier::Base" do
+        subject { DummyTechnicalReportType.new(publisher: "ISO", number: 1) }
+
+        context "when equal identifiers" do
+          it { expect(subject).to eq(DummyTechnicalReportType.new(publisher: "ISO", number: 1)) }
+        end
+
+        context "when different identifiers" do
+          it { expect(subject).not_to eq(DummyTechnicalReportType.new(publisher: "ISO", number: 2)) }
+        end
+      end
+
+      context "when comparing not with an Identifier::Base object nor with a String object" do
+        it { expect { subject == 2 }.to raise_error(Errors::WrongTypeError) }
       end
     end
 
