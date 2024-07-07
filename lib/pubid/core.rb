@@ -1,4 +1,5 @@
 require "parslet"
+require "yaml"
 
 require_relative "core/configuration"
 require_relative "core/errors"

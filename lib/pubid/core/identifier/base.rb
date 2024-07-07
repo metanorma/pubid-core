@@ -83,6 +83,11 @@ module Pubid::Core
         result.reject { |k, v| k != :number && v.nil? }
       end
 
+      def to_yaml
+        # use #to_h for serialization to avoid !ruby/object in output
+        to_h.to_yaml
+      end
+
       def ==(other)
         if other.is_a?(String)
           to_s == other

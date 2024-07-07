@@ -406,6 +406,15 @@ module Pubid::Core
       end
     end
 
+
+    describe "#to_yaml" do
+      subject { DummyTestIdentifier.create(**params).to_yaml }
+
+      let(:params) { { type: "TR", number: "1", publisher: "ISO" } }
+
+      it { expect(subject).to eq("---\n:publisher: ISO\n:number: '1'\n:type: TR\n") }
+    end
+
     describe "#exclude" do
       subject { DummyTestIdentifier.create(**params) }
 
