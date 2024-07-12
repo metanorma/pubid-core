@@ -191,6 +191,16 @@ module Pubid::Core
         end
       end
 
+      context "when comparing with Hash" do
+        context "when equal identifiers" do
+          it { expect(subject).to eq({ publisher: "ISO", number: "1" }) }
+        end
+
+        context "when different identifiers" do
+          it { expect(subject).not_to eq({ publisher: "ISO", number: "2" }) }
+        end
+      end
+
       context "class inherited Identifier::Base" do
         subject { DummyTechnicalReportType.new(publisher: "ISO", number: 1) }
 

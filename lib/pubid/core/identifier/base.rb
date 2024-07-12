@@ -89,10 +89,13 @@ module Pubid::Core
       end
 
       def ==(other)
-        if other.is_a?(String)
+        case other
+        when String
           to_s == other
-        elsif other.is_a?(Identifier::Base)
+        when Identifier::Base
           to_h == other.to_h
+        when Hash
+          to_h == other
         else
           raise Errors::WrongTypeError, "cannot compare with #{other.class} type"
         end
