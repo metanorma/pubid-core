@@ -1,4 +1,25 @@
-= Publication identifiers parsing library
+= Publication identifiers library
+
+Pubid is a comprehensive framework for building and working with publication identifiers. It provides a robust API for creating, modifying, parsing, exporting, and verifying document identifiers, which are crucial for various document management systems and standards compliance.
+
+== Current use cases
+Current use cases are what we needed until now and discovered through application to pubid-* and relaton-* projects. It's not complete and will be expanding during an integration process.
+
+- build identifiers from scratch
+- modifiying identifiers
+- parsing string identifiers
+- exporting/importing to different formats or styles (hash, yaml, URN, etc.)
+- verification of compliance for identifier's representation standard (NIST PubID 1.0 for NIST, RFC 5141 for ISO URN) or using commonly discoveried patterns.
+- verification of correctness for provided input.
+- comparison two provided identifiers (with excluding attributes)
+- converting legacy identifiers to updated format
+
+== Vision
+
+The pubid library should be utilized wherever operations on publication identifiers are required. It serves as an intermediary between users and publication identifiers, streamlining the creation, modification, comparison, and attribute access processes. By centralizing these operations in pubid-core, we ensure that any updates to identifier standards are seamlessly integrated across all related projects.
+
+== Future
+- Pubid algebra (extended comparison between different pubid)
 
 == Usage
 
