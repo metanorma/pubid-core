@@ -167,6 +167,19 @@ module Pubid::Core
         # @typed_stage = self.class::TYPED_STAGES[@typed_stage][:abbr] if @typed_stage
       end
 
+      # Checks if another identifier is newer edition of the same document
+      # @param other [Pubid::Core::Identifier::Base] pubid identifier to compare with
+      # @return [Boolean] true if another identifier is newer edition
+      def new_edition_of?(other)
+        raise Errors::AnotherDocumentError, "cannot compare edition with #{other}" unless exclude(:year) == other.exclude(:year)
+
+        return false if year.nil?
+
+        return true if other.year.nil?
+
+        year < other.year
+      end
+
       class << self
         # Parses given identifier
         # @param code_or_params [String, Hash] code or hash from parser

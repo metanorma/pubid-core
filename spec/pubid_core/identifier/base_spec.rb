@@ -442,5 +442,64 @@ module Pubid::Core
         it { expect(subject.exclude(base: [:year]).to_h).to eq({ publisher: "ISO", number: "1", type: "Amd", year: 1999, base: { number: 1 } }) }
       end
     end
+
+    describe "#new_edition_of?" do
+      subject { DummyTestIdentifier.create(**params).new_edition_of?(other) }
+      let(:params) { { number: 1, publisher: "ISO", year: year } }
+      let(:year) { 1999 }
+      let(:other) { DummyTestIdentifier.create(**other_params) }
+      let(:other_params) { { number: "1", publisher: "ISO", year: other_year } }
+      let(:other_year) { 1999 }
+
+      context "when other identifier is newer edition" do
+        let(:other_year) { 2000 }
+
+        it { is_expected.to be_truthy }
+      end
+
+      context "when other identifier is older edition" do
+        let(:other_year) { 1998 }
+
+        it { is_expected.to be_falsey }
+      end
+
+      context "when other identifier don't have year" do
+        let(:other_year) { nil }
+
+        # identifier without year means it's latest edition
+        it { is_expected.to be_truthy }
+      end
+
+      context "when other identifier is newer edition but another document" do
+        let(:other_params) { { number: 2, publisher: "ISO", year: 2000 } }
+
+        it { expect { subject }.to raise_error(Errors::AnotherDocumentError) }
+      end
+
+      context "when original document without year" do
+        let(:year) { nil }
+
+        # document without year means already latest edition
+        it { is_expected.to be_falsey }
+      end
+
+      context "when comparing supplements' editions" do
+        let(:params) { { type: :amd, publisher: "ISO", number: 1, year: year, base: base } }
+        let(:base) { described_class.new(number: 1, publisher: "ISO", year: year) }
+        let(:other_params) { { type: :amd, publisher: "ISO", number: 1, year: other_year, base: base } }
+
+        context "when other supplement is older edition" do
+          let(:other_year) { 1998 }
+
+          it { is_expected.to be_falsey }
+        end
+
+        context "when other supplement is newer edition" do
+          let(:other_year) { 2000 }
+
+          it { is_expected.to be_truthy }
+        end
+      end
+    end
   end
 end

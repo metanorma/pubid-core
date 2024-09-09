@@ -1,7 +1,23 @@
 require 'forwardable'
 
 module Pubid::Core
-  class DummyDefaultType < Identifier::Base
+  module DummyTestIdentifier
+    class << self
+      include Pubid::Core::Identifier
+    end
+  end
+
+  class BaseTestIdentifier < Identifier::Base
+    def self.get_identifier
+      DummyTestIdentifier
+    end
+
+    def to_s
+      "#{@publisher} #{@number}"
+    end
+  end
+
+  class DummyDefaultType < BaseTestIdentifier
     extend Forwardable
     def_delegators 'Pubid::Core::DummyDefaultType', :type
 
@@ -10,7 +26,7 @@ module Pubid::Core
     end
   end
 
-  class DummyTechnicalReportType < Identifier::Base
+  class DummyTechnicalReportType < BaseTestIdentifier
     extend Forwardable
     def_delegators 'Pubid::Core::DummyTechnicalReportType', :type
 
@@ -31,7 +47,7 @@ module Pubid::Core
     end
   end
 
-  class DummyInternationalStandardType < Identifier::Base
+  class DummyInternationalStandardType < BaseTestIdentifier
     extend Forwardable
     def_delegators 'Pubid::Core::DummyInternationalStandardType', :type
 
@@ -58,7 +74,7 @@ module Pubid::Core
     end
   end
 
-  class DummyAmendment < Identifier::Base
+  class DummyAmendment < BaseTestIdentifier
     extend Forwardable
     def_delegators 'Pubid::Core::DummyAmendment', :type
 
@@ -71,12 +87,6 @@ module Pubid::Core
 
     def self.type
       { key: :amd, title: "Amendment", short: "Amd" }
-    end
-  end
-
-  module DummyTestIdentifier
-    class << self
-      include Pubid::Core::Identifier
     end
   end
 end

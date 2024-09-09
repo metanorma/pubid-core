@@ -8,6 +8,6 @@ module Pubid::Core
     class TypeStageParseError < StandardError; end
     class WrongTypeError < StandardError; end
     class TypedStageInvalidError < StandardError; end
-
+    class AnotherDocumentError < StandardError; end
   end
 end
