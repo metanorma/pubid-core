@@ -171,13 +171,23 @@ module Pubid::Core
       # @param other [Pubid::Core::Identifier::Base] pubid identifier to compare with
       # @return [Boolean] true if another identifier is newer edition
       def new_edition_of?(other)
-        raise Errors::AnotherDocumentError, "cannot compare edition with #{other}" unless exclude(:year) == other.exclude(:year)
+        if exclude(:year, :edition) != other.exclude(:year, :edition)
+          raise Errors::AnotherDocumentError, "cannot compare edition with #{other}"
+        end
 
-        return false if year.nil?
+        return true if year.nil?
 
-        return true if other.year.nil?
+        return false if other.year.nil?
 
-        year < other.year
+        if year == other.year && (edition || other.edition)
+          return false if other.edition.nil?
+
+          return true if edition.nil?
+
+          return edition > other.edition
+        end
+
+        year > other.year
       end
 
       class << self

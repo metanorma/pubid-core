@@ -454,20 +454,20 @@ module Pubid::Core
       context "when other identifier is newer edition" do
         let(:other_year) { 2000 }
 
-        it { is_expected.to be_truthy }
+        it { is_expected.to be_falsey }
       end
 
       context "when other identifier is older edition" do
         let(:other_year) { 1998 }
 
-        it { is_expected.to be_falsey }
+        it { is_expected.to be_truthy }
       end
 
       context "when other identifier don't have year" do
         let(:other_year) { nil }
 
         # identifier without year means it's latest edition
-        it { is_expected.to be_truthy }
+        it { is_expected.to be_falsey }
       end
 
       context "when other identifier is newer edition but another document" do
@@ -480,7 +480,54 @@ module Pubid::Core
         let(:year) { nil }
 
         # document without year means already latest edition
-        it { is_expected.to be_falsey }
+        it { is_expected.to be_truthy }
+      end
+
+      context "when provided edition number" do
+        let(:params) { { number: 1, publisher: "ISO", year: year, edition: edition } }
+        let(:other_params) { { number: 1, publisher: "ISO", year: other_year, edition: other_edition } }
+        let(:edition) { 2 }
+
+        context "when other edition number higher" do
+          let(:other_edition) { 3 }
+
+          it { is_expected.to be_falsey }
+        end
+
+        context "when other edition number lower" do
+          let(:other_edition) { 1 }
+
+          it { is_expected.to be_truthy }
+        end
+
+        context "when other edition number the same" do
+          let(:other_edition) { 2 }
+
+          it { is_expected.to be_falsey }
+        end
+
+        context "when other identifier don't have edition number" do
+          let(:other_edition) { nil }
+
+          # no edition number means latest edition
+          it { is_expected.to be_falsey }
+        end
+
+        context "when original identifier don't have edition number" do
+          let(:edition) { nil }
+          let(:other_edition) { 2 }
+
+          # no edition number means latest edition
+          it { is_expected.to be_truthy }
+        end
+
+        context "when original identifier don't have year but have edition number" do
+          let(:edition) { 2 }
+          let(:other_edition) { 2 }
+          let(:year) { nil }
+
+          it { is_expected.to be_truthy }
+        end
       end
 
       context "when comparing supplements' editions" do
@@ -491,13 +538,13 @@ module Pubid::Core
         context "when other supplement is older edition" do
           let(:other_year) { 1998 }
 
-          it { is_expected.to be_falsey }
+          it { is_expected.to be_truthy }
         end
 
         context "when other supplement is newer edition" do
           let(:other_year) { 2000 }
 
-          it { is_expected.to be_truthy }
+          it { is_expected.to be_falsey }
         end
       end
     end
