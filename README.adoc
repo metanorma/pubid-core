@@ -36,12 +36,11 @@ pubid.to_h
 require "pubid-core"
 
 pubid_first = Identifier.parse("ISO 1:1999")
-pubid_second = Identifier.parse("ISO 1")
+pubid_second = Identifier.parse("ISO 1:2000")
 
 pubid_first.new_edition_of?(pubid_second)
 => false
+pubid_second.new_edition_of?(pubid_first)
+=> true
 
-pubid_second = Identifier.parse("ISO 1:1998")
-pubid_first.new_edition_of?(pubid_second)
-=> false
 ----

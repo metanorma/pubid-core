@@ -9,5 +9,6 @@ module Pubid::Core
     class WrongTypeError < StandardError; end
     class TypedStageInvalidError < StandardError; end
     class AnotherDocumentError < StandardError; end
+    class CannotCompareError < StandardError; end
   end
 end

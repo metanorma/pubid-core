@@ -466,8 +466,7 @@ module Pubid::Core
       context "when other identifier don't have year" do
         let(:other_year) { nil }
 
-        # identifier without year means it's latest edition
-        it { is_expected.to be_falsey }
+        it { expect { subject }.to raise_error(Errors::CannotCompareError) }
       end
 
       context "when other identifier is newer edition but another document" do
@@ -479,8 +478,7 @@ module Pubid::Core
       context "when original document without year" do
         let(:year) { nil }
 
-        # document without year means already latest edition
-        it { is_expected.to be_truthy }
+        it { expect { subject }.to raise_error(Errors::CannotCompareError) }
       end
 
       context "when provided edition number" do
@@ -526,7 +524,7 @@ module Pubid::Core
           let(:other_edition) { 2 }
           let(:year) { nil }
 
-          it { is_expected.to be_truthy }
+          it { expect { subject }.to raise_error(Errors::CannotCompareError) }
         end
       end
 

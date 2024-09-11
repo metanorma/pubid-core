@@ -175,9 +175,9 @@ module Pubid::Core
           raise Errors::AnotherDocumentError, "cannot compare edition with #{other}"
         end
 
-        return true if year.nil?
-
-        return false if other.year.nil?
+        if year.nil? || other.year.nil?
+          raise Errors::CannotCompareError, "cannot compare identifier without edition year"
+        end
 
         if year == other.year && (edition || other.edition)
           return false if other.edition.nil?
