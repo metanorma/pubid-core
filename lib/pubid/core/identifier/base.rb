@@ -190,6 +190,13 @@ module Pubid::Core
         year > other.year
       end
 
+      # returns root identifier
+      def root
+        return base.base if base&.class&.method_defined?(:base) && base&.base
+
+        base || self
+      end
+
       class << self
         # Parses given identifier
         # @param code_or_params [String, Hash] code or hash from parser
