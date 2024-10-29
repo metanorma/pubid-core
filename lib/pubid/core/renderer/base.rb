@@ -7,6 +7,7 @@ module Pubid::Core::Renderer
       "fr" => "F",
       "en" => "E",
       "ar" => "A",
+      "es" => "S",
     }.freeze
 
     def initialize(params)
