@@ -64,7 +64,7 @@ module Pubid::Core
     end
 
     def fuzzy?
-      @stages.length > 1
+      @stages.length > 1 || @stages.none?
     end
 
     def stage

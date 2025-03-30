@@ -71,14 +71,14 @@ module Pubid::Core
       end
 
       it "returns true for #fuzzy?" do
-        expect(subject.fuzzy?).to be_truthy
+        expect(subject.fuzzy?).to be true
       end
 
       context "when only one stage" do
         let(:stage) { "20.20" }
 
         it "returns false for #fuzzy?" do
-          expect(subject.fuzzy?).to be_falsey
+          expect(subject.fuzzy?).to be false
         end
       end
 
@@ -94,6 +94,14 @@ module Pubid::Core
 
           it "returns draft when try to convert to single stage code" do
             expect(subject.to_s).to eq("draft")
+          end
+        end
+
+        context "when empty stages" do
+          let(:stage) { [] }
+
+          it "returns draft when try to convert to single stage code" do
+            expect(subject.fuzzy?).to be true
           end
         end
       end
