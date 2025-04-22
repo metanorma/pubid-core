@@ -1,5 +1,5 @@
 module Pubid
   module Core
-    VERSION = "1.12.11".freeze
+    VERSION = "1.13.0".freeze
   end
 end

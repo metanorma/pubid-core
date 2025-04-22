@@ -2,7 +2,7 @@ module Pubid::Core
   module Identifier
     class Base
       attr_accessor :number, :publisher, :copublisher, :part, :year, :edition, :language, :amendments,
-                    :corrigendums, :stage
+                    :corrigendums, :stage, :all_parts
 
       TYPED_STAGES = {}.freeze
 
@@ -22,7 +22,7 @@ module Pubid::Core
       # @see Corrigendum
       def initialize(publisher:, number:, copublisher: nil, part: nil,
                      year: nil, edition: nil, language: nil, amendments: nil,
-                     corrigendums: nil, stage: nil)
+                     corrigendums: nil, stage: nil, all_parts: false)
 
         if amendments
           @amendments = amendments.map do |amendment|
@@ -53,6 +53,7 @@ module Pubid::Core
         @language = language.to_s if language
 
         @stage = resolve_stage(stage) if stage
+        @all_parts = all_parts if all_parts
       end
 
       # @return [String] Rendered URN identifier
